@@ -4,10 +4,16 @@ import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class HelloApplication extends Application {
 
@@ -87,23 +93,143 @@ public class HelloApplication extends Application {
     }
 
     // MainBoard class for the new scene
-    static class MainBoard extends Application {
+    public static class MainBoard extends Application {
         @Override
         public void start(Stage primaryStage) {
             primaryStage.setTitle("Main Board");
 
-            // Text for the main board
-            Text mainBoardText = new Text("Main board goes here");
-            mainBoardText.setStyle("-fx-font-size: 18px;");
+            // Creating a GridPane for the board
+            GridPane gridPane = new GridPane();
+            gridPane.setAlignment(Pos.CENTER); // Center the grid within the scene
+
+            // Adding cells to the GridPane
+            for (int i = 0; i < 10; i++) {
+                for (int j = 0; j < 10; j++) {
+                    Rectangle cell = new Rectangle(50, 50); // Size of each cell
+                    cell.setFill(Color.BEIGE); // Color of the cell
+                    cell.setStroke(Color.BLACK); // Border color
+                    gridPane.add(cell, j, i); // Add cell to the GridPane
+                }
+            }
+
+            // Creating buildings
+            List<Building> buildings = new ArrayList<>();
+
+            // Add castle
+            Building castle = new Building(Color.YELLOW, 4 * 50, 4 * 50, 50);
+            buildings.add(castle);
+
+            // Add treasures
+            Random random = new Random();
+            for (int i = 0; i < 8; i++) {
+                int xPos = random.nextInt(10) * 50;
+                int yPos = random.nextInt(10) * 50;
+                Building treasure = new Building(Color.GREEN, xPos, yPos, 50);
+                buildings.add(treasure);
+            }
+
+            // Add walls
+            for (int i = 0; i < 5; i++) {
+                int xPos = random.nextInt(10) * 50;
+                int yPos = random.nextInt(10) * 50;
+                Building wall = new Building(Color.BLACK, xPos, yPos, 50);
+                buildings.add(wall);
+            }
+
+            // Add markets
+            for (int i = 0; i < 5; i++) {
+                int xPos = random.nextInt(10) * 50;
+                int yPos = random.nextInt(10) * 50;
+                Building market = new Building(Color.ORANGE, xPos, yPos, 50);
+                buildings.add(market);
+            }
+
+            // Add lost items
+            for (int i = 0; i < 13; i++) {
+                int xPos = random.nextInt(10) * 50;
+                int yPos = random.nextInt(10) * 50;
+                Building lostItem = new Building(Color.BLUE, xPos, yPos, 50);
+                buildings.add(lostItem);
+            }
+
+            // Add traps
+            for (int i = 0; i < 5; i++) {
+                int xPos = random.nextInt(10) * 50;
+                int yPos = random.nextInt(10) * 50;
+                Building trap = new Building(Color.RED, xPos, yPos, 50);
+                buildings.add(trap);
+            }
+
+            // Add buildings to the gridPane
+            for (Building building : buildings) {
+                gridPane.add(building, (int) building.getXPos() / 50, (int) building.getYPos() / 50);
+            }
 
             // Layout for the MainBoard scene
             StackPane layout = new StackPane();
-            layout.getChildren().add(mainBoardText);
+            layout.getChildren().add(gridPane);
 
             // Creating the MainBoard scene
-            Scene scene = new Scene(layout, 600, 400);
+            Scene scene = new Scene(layout, 600, 600); // Adjust the size as needed
             primaryStage.setScene(scene);
             primaryStage.show();
+        }
+
+        public class Building extends Rectangle {
+            private Color color;
+            private double xPos;
+            private double yPos;
+            private double size;
+
+            public Building(Color color, double xPos, double yPos, double size) {
+                super(size, size);
+                this.color = color;
+                this.xPos = xPos;
+                this.yPos = yPos;
+                this.size = size;
+                this.setFill(color);
+                this.setStroke(Color.BLACK);
+                this.setX(xPos);
+                this.setY(yPos);
+            }
+
+            // Getters and setters for the parameters
+            public Color getColor() {
+                return color;
+            }
+
+            public void setColor(Color color) {
+                this.color = color;
+                this.setFill(color);
+            }
+
+            public double getXPos() {
+                return xPos;
+            }
+
+            public void setXPos(double xPos) {
+                this.xPos = xPos;
+                this.setX(xPos);
+            }
+
+            public double getYPos() {
+                return yPos;
+            }
+
+            public void setYPos(double yPos) {
+                this.yPos = yPos;
+                this.setY(yPos);
+            }
+
+            public double getSize() {
+                return size;
+            }
+
+            public void setSize(double size) {
+                this.size = size;
+                this.setWidth(size);
+                this.setHeight(size);
+            }
         }
     }
 }
