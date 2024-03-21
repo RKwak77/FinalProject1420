@@ -183,12 +183,49 @@ public class HelloApplication extends Application {
                 gridPane.add(building, (int) building.getXPos() / 50, (int) building.getYPos() / 50);
             }
 
+            // Create players
+            Player player1 = new Player(Color.GREY);
+            Player player2 = new Player(Color.PURPLE);
+
+            // Roll dice to determine who plays first
+            Random dice = new Random();
+            boolean player1Starts = dice.nextBoolean();
+
+            // Place players in opposite corners of the grid
+            if (player1Starts) {
+                gridPane.add(player1, 0, 0);
+                gridPane.add(player2, 9, 9);
+            } else {
+                gridPane.add(player1, 9, 9);
+                gridPane.add(player2, 0, 0);
+            }
+
+            // Create dice
+            Dice diceRoller = new Dice();
+
+            // Button to roll the dice
+            Button rollButton = new Button("Roll Dice");
+            rollButton.setOnAction(e -> {
+                int diceValue = diceRoller.roll();
+                System.out.println("Dice rolled: " + diceValue);
+                // Pass the dice value to the players for moving
+                player1.move(diceValue);
+                player2.move(diceValue);
+                rollButton.setDisable(true); // Disable roll button after rolling dice
+            });
+
+            // Layout for dice and roll button
+            VBox diceLayout = new VBox(10);
+            diceLayout.getChildren().addAll(diceRoller, rollButton);
+            diceLayout.setAlignment(Pos.CENTER_RIGHT);
+
             // Layout for the MainBoard scene
-            StackPane layout = new StackPane();
-            layout.getChildren().add(gridPane);
+            VBox layout = new VBox(10);
+            layout.getChildren().addAll(gridPane, diceLayout);
+            layout.setAlignment(Pos.CENTER);
 
             // Creating the MainBoard scene
-            Scene scene = new Scene(layout, 600, 600); // Adjust the size as needed
+            Scene scene = new Scene(layout, 800, 600); // Adjust the size as needed
             primaryStage.setScene(scene);
             primaryStage.show();
         }
@@ -238,5 +275,53 @@ public class HelloApplication extends Application {
             this.setY(yPos);
         }
     }
+
+    // Player class
+    public static class Player extends Rectangle {
+        private int currentXPos = 0;
+        private int currentYPos = 0;
+
+        public Player(Color color) {
+            super(50, 50);
+            this.setFill(color);
+            this.setStroke(Color.BLACK);
+        }
+
+        // Method to move the player
+        public void move(int steps) {
+            // Example implementation, actual movement logic depends on game rules
+            System.out.println("Player moved " + steps + " steps.");
+            // Update player's position accordingly
+        }
+    }
+
+    // Dice class
+    public static class Dice extends StackPane {
+        private Random random;
+        private Text diceValueText;
+
+        public Dice() {
+            random = new Random();
+            Rectangle dice = new Rectangle(50, 50);
+            dice.setFill(Color.WHITE);
+            dice.setStroke(Color.BLACK);
+
+            diceValueText = new Text();
+            diceValueText.setStyle("-fx-font-size: 20px;");
+            diceValueText.setVisible(false);
+
+            getChildren().addAll(dice, diceValueText);
+
+            setOnMouseClicked(e -> roll());
+        }
+
+        public int roll() {
+            int value = random.nextInt(6) + 1; // Roll a dice from 1 to 6
+            diceValueText.setText(String.valueOf(value));
+            diceValueText.setVisible(true);
+            return value;
+        }
+    }
 }
-//fart
+
+
