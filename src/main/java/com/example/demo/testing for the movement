@@ -1,0 +1,132 @@
+package com.example.demo;
+
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class testing extends Application {
+    Button startGame;
+    Button quitGame;
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle("Traveling Salesman Game");
+
+        startGame = new Button("Start Game");
+        quitGame = new Button("Quit Game");
+        Text introText = new Text("Welcome to the Traveling Salesman Game");
+
+        VBox layout = new VBox(20);
+        layout.getChildren().addAll(introText, startGame, quitGame);
+        layout.setAlignment(Pos.CENTER);
+
+        startGame.setOnAction(e -> {
+            MainBoard mainBoard = new MainBoard();
+            mainBoard.start(primaryStage);
+        });
+
+        quitGame.setOnAction(e -> primaryStage.close());
+
+        Scene scene = new Scene(layout, 600, 400);
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    public static class MainBoard extends Application {
+        private GridPane gridPane = new GridPane();
+        private Player player1;
+
+        @Override
+        public void start(Stage primaryStage) {
+            primaryStage.setTitle("Main Board");
+            gridPane.setAlignment(Pos.CENTER);
+            gridPane.setPadding(new Insets(10, 10, 10, 10));
+            gridPane.setHgap(10);
+            gridPane.setVgap(10);
+
+            for (int i = 0; i < 10; i++) {
+                for (int j = 0; j < 10; j++) {
+                    Rectangle cell = new Rectangle(50, 50);
+                    cell.setFill(Color.LIGHTGRAY);
+                    cell.setStroke(Color.BLACK);
+                    gridPane.add(cell, j, i);
+                }
+            }
+
+            setupPlayer();
+
+            StackPane layout = new StackPane();
+            layout.getChildren().add(gridPane);
+            Scene scene = new Scene(layout, 700, 700);
+            handlePlayerMovement(scene, primaryStage);
+            primaryStage.setScene(scene);
+            primaryStage.show();
+        }
+
+        private void setupPlayer() {
+            player1 = new Player(0, 0, 10, 25);
+            gridPane.add(player1, 0, 0);
+        }
+
+        private void handlePlayerMovement(Scene scene, Stage primaryStage) {
+            scene.setOnKeyPressed(event -> {
+                int dx = 0;
+                int dy = 0;
+                if (event.getCode() == KeyCode.UP) dy = -1;
+                else if (event.getCode() == KeyCode.DOWN) dy = 1;
+                else if (event.getCode() == KeyCode.LEFT) dx = -1;
+                else if (event.getCode() == KeyCode.RIGHT) dx = 1;
+
+                movePlayer(player1, dx, dy);
+                primaryStage.setScene(scene); // Refresh the scene to reflect the movement
+            });
+        }
+
+        private void movePlayer(Player player, int dx, int dy) {
+            gridPane.getChildren().remove(player);
+            int newX = Math.max(0, Math.min(9, player.getGridX() + dx));
+            int newY = Math.max(0, Math.min(9, player.getGridY() + dy));
+            player.setGridX(newX);
+            player.setGridY(newY);
+            gridPane.add(player, newX, newY);
+        }
+    }
+
+    public static class Player extends Rectangle {
+        private int gridX;
+        private int gridY;
+        private int strength;
+
+        public Player(int gridX, int gridY, int strength, double size) {
+            super(size, size, Color.BLUEVIOLET);
+            this.gridX = gridX;
+            this.gridY = gridY;
+            this.strength = strength;
+            setStroke(Color.BLACK);
+        }
+
+        public int getGridX() { return gridX; }
+        public void setGridX(int gridX) { this.gridX = gridX; }
+
+        public int getGridY() { return gridY; }
+        public void setGridY(int gridY) { this.gridY = gridY; }
+    }
+}
