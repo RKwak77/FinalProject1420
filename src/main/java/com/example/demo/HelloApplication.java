@@ -1,5 +1,5 @@
 package com.example.demo;
-// Import necessary classes for JavaFX application
+
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -101,6 +101,9 @@ public class HelloApplication extends Application {
             // Creating a GridPane for the board
             GridPane gridPane = new GridPane();
             gridPane.setAlignment(Pos.CENTER); // Center the grid within the scene
+            gridPane.setHgap(5); // Add horizontal gap between cells
+            gridPane.setVgap(5); // Add vertical gap between cells
+            gridPane.setPadding(new javafx.geometry.Insets(20)); // Add padding around the grid
 
             // Adding cells to the GridPane
             for (int i = 0; i < 10; i++) {
@@ -122,40 +125,55 @@ public class HelloApplication extends Application {
             // Add treasures
             Random random = new Random();
             for (int i = 0; i < 8; i++) {
-                int xPos = random.nextInt(10) * 50;
-                int yPos = random.nextInt(10) * 50;
+                int xPos, yPos;
+                do {
+                    xPos = random.nextInt(10) * 50;
+                    yPos = random.nextInt(10) * 50;
+                } while (isOverlapping(buildings, xPos, yPos));
                 Building treasure = new Building(Color.GREEN, xPos, yPos, 50);
                 buildings.add(treasure);
             }
 
             // Add walls
             for (int i = 0; i < 5; i++) {
-                int xPos = random.nextInt(10) * 50;
-                int yPos = random.nextInt(10) * 50;
+                int xPos, yPos;
+                do {
+                    xPos = random.nextInt(10) * 50;
+                    yPos = random.nextInt(10) * 50;
+                } while (isOverlapping(buildings, xPos, yPos));
                 Building wall = new Building(Color.BLACK, xPos, yPos, 50);
                 buildings.add(wall);
             }
 
             // Add markets
             for (int i = 0; i < 5; i++) {
-                int xPos = random.nextInt(10) * 50;
-                int yPos = random.nextInt(10) * 50;
+                int xPos, yPos;
+                do {
+                    xPos = random.nextInt(10) * 50;
+                    yPos = random.nextInt(10) * 50;
+                } while (isOverlapping(buildings, xPos, yPos));
                 Building market = new Building(Color.ORANGE, xPos, yPos, 50);
                 buildings.add(market);
             }
 
             // Add lost items
             for (int i = 0; i < 13; i++) {
-                int xPos = random.nextInt(10) * 50;
-                int yPos = random.nextInt(10) * 50;
+                int xPos, yPos;
+                do {
+                    xPos = random.nextInt(10) * 50;
+                    yPos = random.nextInt(10) * 50;
+                } while (isOverlapping(buildings, xPos, yPos));
                 Building lostItem = new Building(Color.BLUE, xPos, yPos, 50);
                 buildings.add(lostItem);
             }
 
             // Add traps
             for (int i = 0; i < 5; i++) {
-                int xPos = random.nextInt(10) * 50;
-                int yPos = random.nextInt(10) * 50;
+                int xPos, yPos;
+                do {
+                    xPos = random.nextInt(10) * 50;
+                    yPos = random.nextInt(10) * 50;
+                } while (isOverlapping(buildings, xPos, yPos));
                 Building trap = new Building(Color.RED, xPos, yPos, 50);
                 buildings.add(trap);
             }
@@ -175,61 +193,49 @@ public class HelloApplication extends Application {
             primaryStage.show();
         }
 
-        public class Building extends Rectangle {
-            private Color color;
-            private double xPos;
-            private double yPos;
-            private double size;
-
-            public Building(Color color, double xPos, double yPos, double size) {
-                super(size, size);
-                this.color = color;
-                this.xPos = xPos;
-                this.yPos = yPos;
-                this.size = size;
-                this.setFill(color);
-                this.setStroke(Color.BLACK);
-                this.setX(xPos);
-                this.setY(yPos);
+        // Method to check if a new building overlaps with existing ones
+        private boolean isOverlapping(List<Building> buildings, double xPos, double yPos) {
+            for (Building building : buildings) {
+                if (building.getXPos() == xPos && building.getYPos() == yPos) {
+                    return true;
+                }
             }
+            return false;
+        }
+    }
 
-            // Getters and setters for the parameters
-            public Color getColor() {
-                return color;
-            }
+    // Building class
+    public static class Building extends Rectangle {
+        private double xPos;
+        private double yPos;
 
-            public void setColor(Color color) {
-                this.color = color;
-                this.setFill(color);
-            }
+        public Building(Color color, double xPos, double yPos, double size) {
+            super(size, size);
+            this.xPos = xPos;
+            this.yPos = yPos;
+            this.setFill(color);
+            this.setStroke(Color.BLACK);
+            this.setX(xPos);
+            this.setY(yPos);
+        }
 
-            public double getXPos() {
-                return xPos;
-            }
+        // Getters and setters for position
+        public double getXPos() {
+            return xPos;
+        }
 
-            public void setXPos(double xPos) {
-                this.xPos = xPos;
-                this.setX(xPos);
-            }
+        public void setXPos(double xPos) {
+            this.xPos = xPos;
+            this.setX(xPos);
+        }
 
-            public double getYPos() {
-                return yPos;
-            }
+        public double getYPos() {
+            return yPos;
+        }
 
-            public void setYPos(double yPos) {
-                this.yPos = yPos;
-                this.setY(yPos);
-            }
-
-            public double getSize() {
-                return size;
-            }
-
-            public void setSize(double size) {
-                this.size = size;
-                this.setWidth(size);
-                this.setHeight(size);
-            }
+        public void setYPos(double yPos) {
+            this.yPos = yPos;
+            this.setY(yPos);
         }
     }
 }
