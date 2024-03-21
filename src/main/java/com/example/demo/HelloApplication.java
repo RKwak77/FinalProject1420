@@ -4,13 +4,14 @@ import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.scene.text.Text;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -200,6 +201,28 @@ public class HelloApplication extends Application {
                 gridPane.add(player2, 0, 0);
             }
 
+            // Event handler for keyboard input
+            Scene scene = new Scene(gridPane, 800, 600); // Initialize the scene with gridPane
+            scene.setOnKeyPressed(event -> {
+                KeyCode keyCode = event.getCode();
+                switch (keyCode) {
+                    case UP:
+                        player1.moveUp();
+                        break;
+                    case DOWN:
+                        player1.moveDown();
+                        break;
+                    case LEFT:
+                        player1.moveLeft();
+                        break;
+                    case RIGHT:
+                        player1.moveRight();
+                        break;
+                    default:
+                        break;
+                }
+            });
+
             // Create dice
             Dice diceRoller = new Dice();
 
@@ -225,7 +248,6 @@ public class HelloApplication extends Application {
             layout.setAlignment(Pos.CENTER);
 
             // Creating the MainBoard scene
-            Scene scene = new Scene(layout, 800, 600); // Adjust the size as needed
             primaryStage.setScene(scene);
             primaryStage.show();
         }
@@ -280,6 +302,7 @@ public class HelloApplication extends Application {
     public static class Player extends Rectangle {
         private int currentXPos = 0;
         private int currentYPos = 0;
+        private boolean hitBuilding = false;
 
         public Player(Color color) {
             super(50, 50);
@@ -287,13 +310,86 @@ public class HelloApplication extends Application {
             this.setStroke(Color.BLACK);
         }
 
+        // Method to move the player up
+        public void moveUp() {
+            move(0, -1);
+        }
+
+        // Method to move the player down
+        public void moveDown() {
+            move(0, 1);
+        }
+
+        // Method to move the player left
+        public void moveLeft() {
+            move(-1, 0);
+        }
+
+        // Method to move the player right
+        public void moveRight() {
+            move(1, 0);
+        }
+
+        // Helper method for movement
+        private void move(int dx, int dy) {
+            int nextXPos = currentXPos + dx;
+            int nextYPos = currentYPos + dy;
+            if (nextXPos >= 0 && nextXPos < 10 && nextYPos >= 0 && nextYPos < 10) {
+                currentXPos = nextXPos;
+                currentYPos = nextYPos;
+                // Update player's position in the GridPane
+                GridPane.setColumnIndex(this, currentXPos);
+                GridPane.setRowIndex(this, currentYPos);
+            }
+        }
+
         // Method to move the player
         public void move(int steps) {
             // Example implementation, actual movement logic depends on game rules
             System.out.println("Player moved " + steps + " steps.");
-            // Update player's position accordingly
+
+            // Iterate through each step
+            for (int i = 0; i < steps; i++) {
+                // Calculate next position
+                int nextXPos = currentXPos + 1;
+                int nextYPos = currentYPos;
+
+                // Check if the next position is within bounds
+                if (nextXPos >= 0 && nextXPos < 10 && nextYPos >= 0 && nextYPos < 10) {
+                    // Check if the next position is a wall
+                    boolean isWall = false;
+                    for (Building building : MainBoard.buildings) {
+                        if (building.getXPos() / 50 == nextXPos && building.getYPos() / 50 == nextYPos &&
+                                building.getFill() == Color.BLACK) {
+                            isWall = true;
+                            break;
+                        }
+                    }
+
+                    // If not a wall, move to the next position
+                    if (!isWall) {
+                        // Check if the next position contains a building
+                        for (Building building : MainBoard.buildings) {
+                            if (building.getXPos() / 50 == nextXPos && building.getYPos() / 50 == nextYPos) {
+                                hitBuilding = true;
+                                break;
+                            }
+                        }
+                        if (!hitBuilding) {
+                            // Update player's position
+                            currentXPos = nextXPos;
+                            currentYPos = nextYPos;
+                        }
+                    }
+                }
+            }
+
+            // Update player's position in the GridPane
+            GridPane.setColumnIndex(this, currentXPos);
+            GridPane.setRowIndex(this, currentYPos);
         }
     }
+
 
     // Dice class
     public static class Dice extends StackPane {
@@ -323,5 +419,4 @@ public class HelloApplication extends Application {
         }
     }
 }
-
 
